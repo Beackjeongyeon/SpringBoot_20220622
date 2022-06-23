@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 </head>
 <body>
 <form action="/member/save" method="post">
-    <input type="text" name="memberEmail" placeholder="이메일"><br>
+    <input type="text" name="memberEmail" placeholder="이메일" onblur="emailDuplicate()"><br>
+    <span id="email-dup-result"></span>
     <input type="text" name="memberPassword" placeholder="비밀번호"><br>
     <input type="text" name="memberName" placeholder="이름"><br>
     <input type="text" name="memberAge" placeholder="나이"><br>
@@ -15,4 +17,33 @@
 </form>
 
 </body>
+<script th:inline="javascript">
+    const emailDuplicate = () => {
+        const email = document.getElementById("memberEmail").value;
+        const checkResult = document.getElementById("email-dup-result");
+        $.ajax({
+            type: "post",
+            url: "/member/emailCheck",
+            type: "text",
+            data: {
+              "memberEmail": email
+            },
+            success: function (result){
+                if(result == "ok"){
+                    checkResult.innerHTML = "사용가능합니다.";
+                    checkResult.style.color = "green";
+                }else{
+                    checkResult.innerHTML = "이미 사용중인 이메일입니다..";
+                    checkResult.style.color = "red";
+                }
+
+            },
+            error: function (){
+                alert("ajax 실패");
+            }
+        });
+    }
+
+</script>
 </html>
+

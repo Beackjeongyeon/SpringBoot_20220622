@@ -60,9 +60,27 @@ public class MemberTest {
 
     @Test
     @DisplayName("회원 데이터 저장")
-    public  void memberSave(){
-        IntStream.rangeClosed(1,20).forEach(i ->{
+    public  void memberSave() {
+        IntStream.rangeClosed(1, 20).forEach(i -> {
             memberService.save(newMember(i));
         });
+
     }
-}
+        @Test
+        @Transactional
+        @Rollback(value = true)
+        @DisplayName("회원삭제 테스트")
+        public void memberDeleteTest(){
+            /**
+             * 신규회원등록
+             * 삭제 처리
+             * 해당 회원으로 조회시 null 이면 통과
+              */
+            Long savedId = memberService.save(newMember(999));
+            memberService.deleteById(savedId);
+            assertThat(memberService.findById(savedId)).isNull();
+        }
+    }
+
+
+

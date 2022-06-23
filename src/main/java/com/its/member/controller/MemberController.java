@@ -3,15 +3,14 @@ package com.its.member.controller;
 import com.its.member.dto.MemberDTO;
 import com.its.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.List;
-
 
 @Controller
 @RequiredArgsConstructor
@@ -21,7 +20,6 @@ public class MemberController {
     //회원가입
     @GetMapping("/member/save-form")
     public String save(){
-
         return "memberPages/save";
     }
 
@@ -43,7 +41,7 @@ public class MemberController {
         if(loginResult != null){
             session.setAttribute("loginEmail", loginResult.getMemberEmail());
             session.setAttribute("id", loginResult.getId());
-            return "memberPages/main";
+            return "memberPages/mypage";
         }else{
             return "memberPages/login";
         }
@@ -54,5 +52,66 @@ public class MemberController {
         List<MemberDTO> memberDTOList = memberService.findAll();
         model.addAttribute("memberList", memberDTOList);
         return "memberPages/list";
+    }
+
+@GetMapping("member/{id}")
+public String findById(@PathVariable Long id, Model model){
+   MemberDTO memberDTO = memberService.findById(id);
+   model.addAttribute("member", memberDTO);
+   return "memberPages/detail";
+    }
+
+    //ajax 상세조회
+    @PostMapping("member/ajax/{id}")
+    public @ResponseBody MemberDTO findByIdAjax(@PathVariable Long id){
+        MemberDTO memberDTO = memberService.findById(id);
+        return memberDTO;
+    }
+
+
+    //get 요청 삭제 /member/delete3
+    @GetMapping("member/delete/{id}")
+    public String delete(@PathVariable Long id){
+        memberService.deleteById(id);
+        return "redirect:/member/";
+    }
+    /**
+    * /member/3: 조회(get) R, 저장(post) C, 수정(put) U,삭제(delete) D
+    */
+
+    // delete 요청 삭제
+    @DeleteMapping("member/{id}") // front 와 backend 의 약속
+    public ResponseEntity deleteAjax(@PathVariable Long id){
+        memberService.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK); //ajax 호출한 부분에 리턴으로 200 응답을 줌.
+    }
+
+    // 수정화면 요청
+    @GetMapping("member/update")
+    public String updateForm(HttpSession session, Model model){
+        Long id =(Long) session.getAttribute("id");
+        MemberDTO memberDTO= memberService.findById(id);
+        model.addAttribute("updateMember", memberDTO);
+        return "memberPages/update";
+    }
+    //수정처리
+    @PostMapping("member/update")
+    public String update(@ModelAttribute MemberDTO memberDTO){
+        memberService.update(memberDTO);
+        return "redirect:/member/"+memberDTO.getId();
+    }
+
+    // 수정처리(put 요청)
+    @PutMapping("member/{id}")
+    public ResponseEntity updateByAjax(@RequestBody MemberDTO memberDTO){
+        memberService.update(memberDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    //이메일 중복체크
+    @PostMapping("/emailCheck")
+    public @ResponseBody String emailCheck(@RequestParam String memberEmail){
+        String checkResult = memberService.emailCheck(memberEmail);
+        return checkResult;
     }
 }

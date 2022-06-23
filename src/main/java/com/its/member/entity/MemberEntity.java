@@ -32,8 +32,19 @@ public class MemberEntity {
 
 
     //MemberDTO 데이터를 Entity로 변환시켜준다.
-public static MemberEntity toEntity(MemberDTO memberDTO){
+    public static MemberEntity toEntity(MemberDTO memberDTO){
+        MemberEntity memberEntity = new MemberEntity();
+        memberEntity.setMemberEmail(memberDTO.getMemberEmail());
+        memberEntity.setMemberPassword(memberDTO.getMemberPassword());
+        memberEntity.setMemberName(memberDTO.getMemberName());
+        memberEntity.setMemberAge(memberDTO.getMemberAge());
+        memberEntity.setMemberPhone(memberDTO.getMemberPhone());
+        return memberEntity;
+    }
+
+ public static MemberEntity toUpdateEntity(MemberDTO memberDTO){
     MemberEntity memberEntity = new MemberEntity();
+    memberEntity.setId(memberDTO.getId());
     memberEntity.setMemberEmail(memberDTO.getMemberEmail());
     memberEntity.setMemberPassword(memberDTO.getMemberPassword());
     memberEntity.setMemberName(memberDTO.getMemberName());
